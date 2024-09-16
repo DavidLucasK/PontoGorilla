@@ -1,20 +1,60 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { StatusBar } from 'react-native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { useFonts, Poppins_400Regular, Poppins_500Medium, Poppins_700Bold, Poppins_600SemiBold } from '@expo-google-fonts/poppins';
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
+import Login from './src/screens/Login'; // Tela Login
+import Home from './src/screens/Home'; // Tela Home
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+const Stack = createStackNavigator();
+
+const App: React.FC = () => {
+    // Carregar as fontes
+    const [fontsLoaded] = useFonts({
+        Poppins_400Regular,
+        Poppins_500Medium,
+        Poppins_600SemiBold,
+        Poppins_700Bold,
+    });
+
+    // Mostrar uma tela de carregamento enquanto as fontes são carregadas
+    if (!fontsLoaded) {
+        return null;
+    }
+
+    // Renderizar o app quando as fontes forem carregadas
+    return (
+        <NavigationContainer>
+            <Stack.Navigator
+                initialRouteName="Login" // Redireciona para Home ou Login
+                screenOptions={{
+                    gestureEnabled: false,
+                    cardStyleInterpolator: () => ({
+                        cardStyle: {
+                            opacity: 1,
+                        },
+                    }),
+                }}
+            >
+                <Stack.Screen 
+                    name="Home" 
+                    component={Home} 
+                    options={{ headerShown: false }} 
+                />
+                <Stack.Screen 
+                    name="Login"
+                    component={Login}
+                    options={{ headerShown: false }} 
+                />
+            </Stack.Navigator>
+            <StatusBar
+                barStyle="light-content"
+                backgroundColor="transparent"
+                translucent={true}
+            />
+        </NavigationContainer>
+    );
+};
+
+export default App;
