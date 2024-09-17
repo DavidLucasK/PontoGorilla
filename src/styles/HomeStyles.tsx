@@ -33,8 +33,19 @@ const HomeStyles = StyleSheet.create({
         marginBottom: 20,
         gap: 20,
     },
+    welcomeContainer: {
+        display: 'flex',
+        marginTop: -50,
+        paddingBottom: 100,
+    },
+    welcome: {
+        textAlign: 'center',
+        color: '#fff',
+        fontSize: 28,
+        fontFamily: 'Poppins_600SemiBold',
+    },
     button: {
-        backgroundColor: '#6e6e6e',
+        backgroundColor: '#626675',
         padding: 15,
         borderRadius: 5,
         width: '45%',
@@ -46,7 +57,7 @@ const HomeStyles = StyleSheet.create({
     buttonText: {
         color: '#fff',
         fontSize: 16,
-        fontWeight: 'bold',
+        fontFamily: 'Poppins_600SemiBold',
     },
     status: {
         fontSize: 18,

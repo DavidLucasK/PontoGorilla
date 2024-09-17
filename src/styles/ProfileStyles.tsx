@@ -5,52 +5,126 @@ const ProfileStyles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#343a40',
     },
+    profileTitle: {
+        marginTop: 20,
+        fontSize: 32,
+        fontFamily: 'Poppins_600SemiBold',
+        color: '#FFF', // Ajuste a cor do texto conforme necessário
+    },
     scrollContainer: {
         flexGrow: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    home: {
-        width: '100%',
-        alignItems: 'center',
+    profileContainer: {
+        marginVertical: 20, // Ajusta a margem vertical conforme necessário
     },
-    currentTime: {
-        fontSize: 24,
+    profileImage: {
+        width: 100, // Ajuste o tamanho da imagem conforme necessário
+        height: 100, // Ajuste o tamanho da imagem conforme necessário
+        borderRadius: 50, // Faz a imagem ser circular
+        marginBottom: 20,
+    },
+    label: {
+        fontSize: 14,
         fontFamily: 'Poppins_600SemiBold',
-        marginBottom: 20,
-        color: '#FFF',
+        color: '#FFF', // Ajuste a cor do texto conforme necessário
     },
-    buttonContainer: {
-        flexDirection: 'column',
-        alignItems: 'center',
+    textInput: {
         width: '100%',
-        marginBottom: 20,
-        gap: 20,
-    },
-    button: {
-        backgroundColor: '#6e6e6e',
-        padding: 15,
+        minWidth: 300,
+        height: 50,
+        color: '#FFF',
+        borderColor: '#ddd',
+        borderWidth: 1,
         borderRadius: 5,
-        width: '45%',
-        alignItems: 'center',
-    },
-    buttonActive: {
-        backgroundColor: '#509e2f',
-    },
-    buttonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    status: {
-        fontSize: 18,
-        fontWeight: '500',
-        marginTop: 20,
+        paddingHorizontal: 10,
+        marginBottom: 20,
+        fontFamily: 'Poppins_500Medium',
+        fontSize: 14,
     },
     gorilla: {
         width: 100,
         height: 100,
         resizeMode: 'contain',
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)', // Fundo do modal
+    },
+    modalContent: {
+        width: '80%',
+        backgroundColor: '#343a40',
+        borderRadius: 10,
+        padding: 40,
+        alignItems: 'center',
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontFamily: 'Poppins_600SemiBold',
+        marginBottom: 20,
+        color: '#FFF',
+    },
+    modalSubTitle: {
+        fontSize: 16,
+        fontFamily: 'Poppins_500Medium',
+        marginBottom: 20,
+        color: '#FFF', 
+        textAlign: 'center',
+    },
+    modalButtons: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+    },
+    buttonCancel: {
+        backgroundColor: '#606c77',
+        fontFamily: 'Poppins_600SemiBold',
+        padding: 10,
+        borderRadius: 5,
+        width: '48%',
+        alignItems: 'center',
+    },
+    buttonConfirm: {
+        fontFamily: 'Poppins_600SemiBold',
+        backgroundColor: '#509e2f',
+        padding: 10,
+        borderRadius: 5,
+        width: '48%',
+        alignItems: 'center',
+    },
+    buttonText: {
+        color: 'white',
+        fontFamily: 'Poppins_600SemiBold',
+        textAlign: 'center',
+    },
+    buttonOk: {
+        backgroundColor: '#509e2f',
+        padding: 10,
+        borderRadius: 5,
+        minWidth: '48%',
+    },
+    atualizarInfo:{
+        fontFamily: 'Poppins_600SemiBold',
+        color: '#FFF',
+        textAlign: 'center',
+        padding: 10,
+        paddingHorizontal: 15,
+        borderRadius: 5,
+        marginBottom: 60,
+        marginTop: -20,
+        backgroundColor: '#509e2f'
+    },
+    signOut: {
+        fontFamily: 'Poppins_600SemiBold',
+        color: '#FFF',
+        textAlign: 'center',
+        padding: 10,
+        paddingHorizontal: 15,
+        borderRadius: 5,
+        backgroundColor: '#626675'
     },
 });
 

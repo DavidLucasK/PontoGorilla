@@ -23,7 +23,7 @@ const Header: React.FC<HeaderProps> = ({ homeIcon, leftIcon, middleIcon, rightIc
     const handleLogoPress = () => {
         navigation.reset({
             index: 0,
-            routes: [{ name: 'Login' }], // Redefine a navegação para a tela Home
+            routes: [{ name: 'Home' }], // Redefine a navegação para a tela Home
         });
     };
 
