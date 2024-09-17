@@ -117,7 +117,7 @@ const Home: React.FC = () => {
                 {loading ? 
                     null : 
                     <View style={HomeStyles.welcomeContainer}>
-                        <Text style={HomeStyles.welcome}>{welcomeMessage} {name}</Text>
+                        <Text style={HomeStyles.welcome}>{welcomeMessage}<Text style={HomeStyles.name}> {name}</Text></Text>
                     </View>
                 }
                 <Image style={HomeStyles.gorilla} source={require('../../assets/logo_gorilla_white.png')} />
@@ -130,15 +130,7 @@ const Home: React.FC = () => {
                             onPress={handlePunchIn}
                             disabled={punchInStatus}
                         >
-                            <Text style={HomeStyles.buttonText}>Registrar Entrada</Text>
-                        </TouchableOpacity>
-                        
-                        <TouchableOpacity 
-                            style={[HomeStyles.button, punchInStatus && HomeStyles.buttonActive]} 
-                            onPress={handlePunchOut}
-                            disabled={!punchInStatus}
-                        >
-                            <Text style={HomeStyles.buttonText}>Registrar Saída</Text>
+                            <Text style={HomeStyles.buttonText}>Registrar Ponto</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

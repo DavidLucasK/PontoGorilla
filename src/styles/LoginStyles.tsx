@@ -87,6 +87,9 @@ const LoginStyles = StyleSheet.create({
         textAlign: 'center',
         marginTop: 20,
     },
+    test: {
+        color: '#1F262D'
+    }
 });
 
 export default LoginStyles;

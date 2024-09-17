@@ -76,7 +76,7 @@ const handleTogglePasswordVisibility = () => {
 
 return (
     <View style={LoginStyles.container}>
-        <TouchableOpacity onPress={() => navigation.navigate('Home', { refresh: new Date().toISOString() })}><Text style={LoginStyles.new}>aaaaaaaaaaaaaaaaa</Text></TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('Home', { refresh: new Date().toISOString() })}><Text style={LoginStyles.test}>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</Text></TouchableOpacity>
         <Image style={LoginStyles.logo} source={require('../../assets/nome_gorilla_white.png')} />
         <View style={LoginStyles.form}>
             <View style={LoginStyles.field}>
