@@ -40,7 +40,7 @@ const HomeStyles = StyleSheet.create({
     },
     welcome: {
         textAlign: 'center',
-        color: '#ccc2',
+        color: '#ddd',
         fontSize: 28,
         fontFamily: 'Poppins_600SemiBold',
     },

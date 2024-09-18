@@ -121,7 +121,7 @@ const Profile: React.FC = () => {
             <Header
                 homeIcon={require('../../assets/nome_gorilla_white.png')}
                 leftIcon={require('../../assets/calendar.png')}
-                onLeftIconPress={() => navigation.navigate('Login')}
+                onLeftIconPress={() => navigation.navigate('PointsRecords')}
                 middleIcon={require('../../assets/clock2.png')}
                 onMiddleIconPress={() => navigation.navigate('Login')}
                 rightIcon={require('../../assets/profile-user.png')}

@@ -13,7 +13,6 @@ const Home: React.FC = () => {
     const navigation = useNavigation<HomeNavigationProp>(); // Usando o tipo de navegação para HomeScreen
     const route = useRoute<RouteProp<RootStackParamList, 'Home'>>();
     const [currentTime, setCurrentTime] = useState<string>('');
-    const [punchInStatus, setPunchInStatus] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true); // Estado de carregamento
     const [welcomeMessage, setWelcomeMessage] = useState<string>('');
 
@@ -91,22 +90,12 @@ const Home: React.FC = () => {
         return () => clearInterval(timer);
     }, []);
 
-    const handlePunchIn = () => {
-        setPunchInStatus(true);
-        Alert.alert('Entrada Registrada', 'Você registrou sua entrada com sucesso!');
-    };
-
-    const handlePunchOut = () => {
-        setPunchInStatus(false);
-        Alert.alert('Saída Registrada', 'Você registrou sua saída com sucesso!');
-    };
-
     return (
         <View style={HomeStyles.container}>
             <Header
                 homeIcon={require('../../assets/nome_gorilla_white.png')}
                 leftIcon={require('../../assets/calendar.png')}
-                onLeftIconPress={() => navigation.navigate('Login')}
+                onLeftIconPress={() => navigation.navigate('PointsRecords')}
                 middleIcon={require('../../assets/clock2.png')}
                 onMiddleIconPress={() => navigation.navigate('Login')}
                 rightIcon={require('../../assets/profile-user.png')}
@@ -126,9 +115,7 @@ const Home: React.FC = () => {
 
                     <View style={HomeStyles.buttonContainer}>
                         <TouchableOpacity 
-                            style={[HomeStyles.button, !punchInStatus && HomeStyles.buttonActive]} 
-                            onPress={handlePunchIn}
-                            disabled={punchInStatus}
+                            style={HomeStyles.button}
                         >
                             <Text style={HomeStyles.buttonText}>Registrar Ponto</Text>
                         </TouchableOpacity>
