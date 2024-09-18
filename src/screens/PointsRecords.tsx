@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, FlatList, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import PointsRecordsStyles from '../styles/PointsRecordsStyles'; // Importando os estilos do PointsRecords
 import { useNavigation } from '@react-navigation/native'; // Importando useNavigation
 import { PointsRecordsNavigationProp } from '../../navigation'; // Importando o tipo de navegação
 import Header from '../components/Header';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 // Definindo o tipo para os registros de ponto
 interface PointRecord {
@@ -22,16 +23,12 @@ const backendUrl = 'https://pontogorillaback.vercel.app/api/auth';
 
 // Função auxiliar para calcular o dia da semana
 const formatDate = (date: string) => {
-    // Verifica se a data está no formato esperado YYYY-MM-DD
     const parts = date.split('-');
     if (parts.length !== 3) {
         throw new Error('Data no formato incorreto. Esperado YYYY-MM-DD.');
     }
 
-    // Desestrutura o ano, mês e dia do array
     const [year, monthStr, dayStr] = parts;
-
-    // Converte para números e garante que são válidos
     const day = parseInt(dayStr, 10);
     const month = parseInt(monthStr, 10);
 
@@ -39,36 +36,25 @@ const formatDate = (date: string) => {
         throw new Error('Dia ou mês inválidos.');
     }
 
-    // Formata a data como DD-MM
     const formattedDate = `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}`;
-    
     return `${formattedDate}`;
 };
 
-//Formata os horarios
+// Formata os horários
 const formatTime = (time: string) => {
-    // Divide o tempo em horas e minutos
     const [hours, minutes] = time.split(':');
-    
-    // Garante que horas e minutos sejam números válidos
-    const formattedHours = hours.padStart(2, '0'); // Garante que as horas tenham dois dígitos
-    const formattedMinutes = minutes.slice(0, 2).padStart(2, '0'); // Garante que os minutos tenham dois dígitos
-
-    // Retorna o formato HH:MM
+    const formattedHours = hours.padStart(2, '0');
+    const formattedMinutes = minutes.slice(0, 2).padStart(2, '0');
     return `${formattedHours}:${formattedMinutes}`;
 };
 
 // Função para obter o dia da semana
 const getDayOfWeek = (date: string) => {
-    const formattedDate = formatDate(date); // Formata a data como DD-MM
-    const [day, month] = date.split('-');
-    const fullDate = new Date(`${new Date().getFullYear()}-${month}-${day}`);
+    const [year, month, day] = date.split('-').map(Number);
+    const fullDate = new Date(year, month - 1, day);
     const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-    const dayOfWeek = dayNames[fullDate.getDay()]; // Determina o dia da semana
-
-    return `${dayOfWeek}`;
+    return dayNames[fullDate.getDay()];
 };
-
 
 // Função auxiliar para calcular o total de horas trabalhadas
 const calculateTotalWorked = (times: string[]) => {
@@ -92,10 +78,10 @@ const calculateTotalWorked = (times: string[]) => {
 
 const PointsRecords: React.FC = () => {
     const navigation = useNavigation<PointsRecordsNavigationProp>();
-    const [expanded, setExpanded] = useState<number | null>(null); // Para gerenciar a expansão da linha
+    const [expanded, setExpanded] = useState<number | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
-    const [data, setData] = useState<PointRecord[]>([]); // Estado para armazenar os dados vindos do backend
-    const [error, setError] = useState<string | null>(null); // Estado para capturar erros
+    const [data, setData] = useState<PointRecord[]>([]);
+    const [error, setError] = useState<string | null>(null);
 
     const getUserId = async () => {
         try {
@@ -109,15 +95,15 @@ const PointsRecords: React.FC = () => {
     useEffect(() => {
         const getRecords = async () => {
             try {
-                const userId = await getUserId(); // Resolva a Promise para obter o valor de userId
-
+                const userId = await getUserId();
                 if (userId) {
-                    setLoading(true); // Inicie o carregamento
+                    setLoading(true);
                     const response = await axios.get<PointRecord[]>(`${backendUrl}/points/${userId}`);
                     const dados = response.data;
 
                     if (Array.isArray(dados)) {
-                        setData(dados); // Atualize o estado com os dados da resposta
+                        const sortedData = dados.sort((a, b) => b.id - a.id);
+                        setData(sortedData);
                     } else {
                         console.error('Os dados recebidos não são um array.');
                     }
@@ -127,7 +113,7 @@ const PointsRecords: React.FC = () => {
             } catch (error) {
                 console.error('Erro ao carregar perfil:', error);
             } finally {
-                setLoading(false); // Finalize o carregamento
+                setLoading(false);
             }
         };
 
@@ -135,20 +121,16 @@ const PointsRecords: React.FC = () => {
     }, []);
 
     const toggleExpand = (id: number) => {
-        setExpanded(prevId => (prevId === id ? null : id)); // Expande ou recolhe a linha
+        setExpanded(prevId => (prevId === id ? null : id));
     };
 
     const renderItem = ({ item }: { item: PointRecord }) => {
-        const dayOfWeek = getDayOfWeek(item.date); // Função auxiliar para calcular o dia da semana
+        const dayOfWeek = getDayOfWeek(item.date);
         const dataFormatada = formatDate(item.date);
         const times = [item.hour1, item.hour2, item.hour3, item.hour4];
-        
-        // Formate os horários
         const formattedTimes = times.map(time => formatTime(time));
-    
-        // Calcule o total de horas trabalhadas
         const totalWorked = calculateTotalWorked(times);
-    
+
         return (
             <TouchableOpacity
                 style={PointsRecordsStyles.row}
@@ -163,15 +145,24 @@ const PointsRecords: React.FC = () => {
                             </View>
                         ))}
                     </View>
-                    <Text style={PointsRecordsStyles.arrow}>
-                        {expanded === item.id ? '▲' : '▼'}
-                    </Text>
+                    <Icon
+                        name={expanded === item.id ? 'expand-less' : 'expand-more'}
+                        style={PointsRecordsStyles.arrow}
+                    /> 
                 </View>
                 {expanded === item.id && (
                     <View style={PointsRecordsStyles.detailsContainer}>
                         <Text style={PointsRecordsStyles.dayOfWeek}>{dayOfWeek}</Text>
                         {formattedTimes.map((time: string, index: number) => (
-                            <TouchableOpacity key={index} style={PointsRecordsStyles.timeBlock}>
+                            <TouchableOpacity 
+                                key={index} 
+                                style={PointsRecordsStyles.timeBlock} 
+                                onPress={() => navigation.navigate('SingleRecord', { 
+                                    recordId: item.id, 
+                                    hourClicked: index + 1, 
+                                    timeLabel: index % 2 === 0 ? 'Entrada' : 'Saída'
+                                })}
+                            >
                                 <View style={PointsRecordsStyles.detailStand}></View>
                                 <View>
                                     <Text style={PointsRecordsStyles.expandedTime}>{time}</Text>
@@ -184,6 +175,7 @@ const PointsRecords: React.FC = () => {
                                 </View>
                             </TouchableOpacity>
                         ))}
+                        <Text style={PointsRecordsStyles.borderObservation}></Text>
                         <Text style={PointsRecordsStyles.observationsTitle}>Observações</Text>
                         <Text style={PointsRecordsStyles.details}>{item.obs || 'Sem observações'}</Text>
                         <Text style={PointsRecordsStyles.totalWorked}>Total Trabalhado: {totalWorked}</Text>
@@ -192,7 +184,6 @@ const PointsRecords: React.FC = () => {
             </TouchableOpacity>
         );
     };
-    
 
     return (
         <View style={PointsRecordsStyles.container}>
@@ -206,9 +197,10 @@ const PointsRecords: React.FC = () => {
                 onRightIconPress={() => navigation.navigate('Profile')}
                 isStoreScreen={false}
             />
+            <Text style={PointsRecordsStyles.comprovantes}>Últimos Registros</Text>
             <View style={PointsRecordsStyles.scrollContainer}>
                 {loading ? (
-                    <ActivityIndicator size="large" color="#509e2f" />
+                    <ActivityIndicator size="large" color="#509e2f" style={PointsRecordsStyles.loadingIcon} />
                 ) : (
                     <FlatList
                         data={data}

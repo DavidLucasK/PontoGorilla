@@ -10,6 +10,7 @@ import CriarConta from './src/screens/CriarConta'; // Tela Criar Conta
 import ForgetPass from './src/screens/ForgetPass'; // Tela Esqueceu a Senha
 import Home from './src/screens/Home'; // Tela Home
 import PointsRecords from './src/screens/PointsRecords'; // Tela PointsRecords
+import SingleRecord from './src/screens/SingleRecord'; // Tela PointsRecords
 import Profile from './src/screens/Profile'; // Tela Profile
 
 import { AppProvider } from './src/context/AppContext'; // AppProvider
@@ -73,6 +74,11 @@ const App: React.FC = () => {
                     <Stack.Screen 
                         name="PointsRecords" 
                         component={PointsRecords} 
+                        options={{ headerShown: false }} 
+                    />
+                    <Stack.Screen 
+                        name="SingleRecord" 
+                        component={SingleRecord} 
                         options={{ headerShown: false }} 
                     />
                     <Stack.Screen 

@@ -54,6 +54,10 @@ const Login: React.FC = () => {
 
         if (response.status === 200) {
             await AsyncStorage.removeItem('userId');
+            await AsyncStorage.removeItem('userName');
+            await AsyncStorage.removeItem('email');
+            await AsyncStorage.removeItem('Cpf');
+            await AsyncStorage.removeItem('Phone');
             await AsyncStorage.setItem('authToken', data.token);
             await AsyncStorage.setItem('userId', data.userId.toString()); // Converte userId para string
             setUser(data.userId); // Atualiza o estado do usuário no contexto, convertendo para número

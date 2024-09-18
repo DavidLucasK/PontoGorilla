@@ -7,6 +7,10 @@ const PointsRecordsStyles = StyleSheet.create({
     },
     scrollContainer: {
         padding: 16,
+        marginBottom: 170,
+    },
+    loadingIcon: {
+        marginTop: 250,
     },
     // Estilos para a lista de registros de pontos
     row: {
@@ -14,12 +18,7 @@ const PointsRecordsStyles = StyleSheet.create({
         borderRadius: 8,
         paddingVertical: 26,
         paddingHorizontal: 16,
-        marginBottom: 10,
-        elevation: 2, // Sombra no Android
-        shadowColor: '#000', // Sombra no iOS
-        shadowOpacity: 0.2,
-        shadowRadius: 3,
-        shadowOffset: { width: 0, height: 2 },
+        marginBottom: 20,
     },
     rowContent: {
         flexDirection: 'row',
@@ -33,21 +32,25 @@ const PointsRecordsStyles = StyleSheet.create({
     },
     timesContainer: {
         flexDirection: 'row',
-        flex: 1, // Faz com que os horários ocupem o espaço disponível
     },
     timeBlockTop: {
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
-        marginLeft: 30,
-        marginVertical: 4,
     },
     timeBlock: {
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
-        marginLeft: 20,
         marginVertical: 4,
+    },
+    time: {
+        fontSize: 12,
+        fontFamily: 'Poppins_500Medium',
+        color: '#222',
+        marginHorizontal: 10,
+        width: 40, // Defina uma largura fixa
+        textAlign: 'center', // Centraliza o texto
     },
     detailStand: {
         width: 6,
@@ -55,23 +58,11 @@ const PointsRecordsStyles = StyleSheet.create({
         borderRadius: 10,
         backgroundColor: '#509e2f',
         marginRight: 10,
-        marginLeft: -20,
-    },
-    test: {
-        backgroundColor: 'red',
-        alignSelf: 'center',
-        width: '100%',
-        height: '100%'
-    },
-    time: {
-        fontSize: 12,
-        fontFamily: 'Poppins_500Medium',
-        color: '#222',
     },
     arrow: {
-        fontSize: 16,
+        fontSize: 28,
         color: '#222',
-        marginTop: -10,
+        marginTop: -5,
     },
     detailsContainer: {
         marginTop: 10,
@@ -126,26 +117,12 @@ const PointsRecordsStyles = StyleSheet.create({
         fontFamily: 'Poppins_400Regular',
         color: '#777',
     },
-    filterContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        padding: 10,
-        backgroundColor: '#f8f9fa',
-    },
-    filterButton: {
-        padding: 10,
-        borderRadius: 5,
-        backgroundColor: '#e9ecef',
-        borderWidth: 1,
-        borderColor: '#ced4da',
-    },
-    activeFilterButton: {
-        backgroundColor: '#007bff',
-        borderColor: '#007bff',
-    },
-    filterText: {
-        color: '#333',
+    comprovantes: {
+        marginTop: 10,
+        color: '#FFF',
         textAlign: 'center',
+        fontSize: 20,
+        fontFamily: 'Poppins_500Medium',
     },
 });
 

@@ -32,6 +32,7 @@ const ProfileStyles = StyleSheet.create({
     },
     textInput: {
         width: '100%',
+
         minWidth: 300,
         height: 50,
         color: '#FFF',
@@ -66,6 +67,7 @@ const ProfileStyles = StyleSheet.create({
         fontFamily: 'Poppins_600SemiBold',
         marginBottom: 20,
         color: '#FFF',
+        textAlign: 'center',
     },
     modalSubTitle: {
         fontSize: 16,
@@ -103,8 +105,11 @@ const ProfileStyles = StyleSheet.create({
     buttonOk: {
         backgroundColor: '#509e2f',
         padding: 10,
+        color: '#FFF',
+        textAlign: 'center',
         borderRadius: 5,
         minWidth: '48%',
+        fontFamily: 'Poppins_600SemiBold',
     },
     atualizarInfo:{
         fontFamily: 'Poppins_600SemiBold',
@@ -125,6 +130,9 @@ const ProfileStyles = StyleSheet.create({
         paddingHorizontal: 15,
         borderRadius: 5,
         backgroundColor: '#626675'
+    },
+    loadingIcon: {
+        marginTop: 250,
     },
 });
 
