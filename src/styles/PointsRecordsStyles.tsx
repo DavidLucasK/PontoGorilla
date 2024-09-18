@@ -57,6 +57,12 @@ const PointsRecordsStyles = StyleSheet.create({
         marginRight: 10,
         marginLeft: -20,
     },
+    test: {
+        backgroundColor: 'red',
+        alignSelf: 'center',
+        width: '100%',
+        height: '100%'
+    },
     time: {
         fontSize: 12,
         fontFamily: 'Poppins_500Medium',
@@ -64,7 +70,7 @@ const PointsRecordsStyles = StyleSheet.create({
     },
     arrow: {
         fontSize: 16,
-        color: '#509e2f',
+        color: '#222',
         marginTop: -10,
     },
     detailsContainer: {

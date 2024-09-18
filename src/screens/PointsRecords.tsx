@@ -1,17 +1,74 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, FlatList } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, FlatList, ActivityIndicator, Alert } from 'react-native';
 import PointsRecordsStyles from '../styles/PointsRecordsStyles'; // Importando os estilos do PointsRecords
 import { useNavigation } from '@react-navigation/native'; // Importando useNavigation
 import { PointsRecordsNavigationProp } from '../../navigation'; // Importando o tipo de navegação
 import Header from '../components/Header';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// Definindo o tipo para os registros de ponto
+interface PointRecord {
+    id: number;
+    date: string;
+    hour1: string;
+    hour2: string;
+    hour3: string;
+    hour4: string;
+    obs?: string; // Observações são opcionais
+}
+
+const backendUrl = 'https://pontogorillaback.vercel.app/api/auth';
 
 // Função auxiliar para calcular o dia da semana
+const formatDate = (date: string) => {
+    // Verifica se a data está no formato esperado YYYY-MM-DD
+    const parts = date.split('-');
+    if (parts.length !== 3) {
+        throw new Error('Data no formato incorreto. Esperado YYYY-MM-DD.');
+    }
+
+    // Desestrutura o ano, mês e dia do array
+    const [year, monthStr, dayStr] = parts;
+
+    // Converte para números e garante que são válidos
+    const day = parseInt(dayStr, 10);
+    const month = parseInt(monthStr, 10);
+
+    if (isNaN(day) || isNaN(month)) {
+        throw new Error('Dia ou mês inválidos.');
+    }
+
+    // Formata a data como DD-MM
+    const formattedDate = `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}`;
+    
+    return `${formattedDate}`;
+};
+
+//Formata os horarios
+const formatTime = (time: string) => {
+    // Divide o tempo em horas e minutos
+    const [hours, minutes] = time.split(':');
+    
+    // Garante que horas e minutos sejam números válidos
+    const formattedHours = hours.padStart(2, '0'); // Garante que as horas tenham dois dígitos
+    const formattedMinutes = minutes.slice(0, 2).padStart(2, '0'); // Garante que os minutos tenham dois dígitos
+
+    // Retorna o formato HH:MM
+    return `${formattedHours}:${formattedMinutes}`;
+};
+
+// Função para obter o dia da semana
 const getDayOfWeek = (date: string) => {
-    const [day, month] = date.split('/');
+    const formattedDate = formatDate(date); // Formata a data como DD-MM
+    const [day, month] = date.split('-');
     const fullDate = new Date(`${new Date().getFullYear()}-${month}-${day}`);
     const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-    return dayNames[fullDate.getDay()];
+    const dayOfWeek = dayNames[fullDate.getDay()]; // Determina o dia da semana
+
+    return `${dayOfWeek}`;
 };
+
 
 // Função auxiliar para calcular o total de horas trabalhadas
 const calculateTotalWorked = (times: string[]) => {
@@ -27,190 +84,80 @@ const calculateTotalWorked = (times: string[]) => {
     const hours = Math.floor(totalWorked / 60);
     const minutes = totalWorked % 60;
 
-    // Formatando horas para incluir zero à esquerda se necessário
     const formattedHours = hours < 10 ? `0${hours}` : `${hours}`;
     const formattedMinutes = minutes < 10 ? `0${minutes}` : `${minutes}`;
 
     return `${formattedHours}:${formattedMinutes}`;
 };
 
-// Função para obter o início e o fim do mês atual
-const getCurrentMonthRange = () => {
-    const today = new Date();
-    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-    return { startOfMonth, endOfMonth };
-};
-
-// Função para obter o início e o fim da semana atual
-const getCurrentWeekRange = () => {
-    const today = new Date();
-    const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 1)); // Segunda-feira
-    const endOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 7)); // Domingo
-    return { startOfWeek, endOfWeek };
-};
-
-// Função para filtrar dados com base no intervalo de datas
-const filterData = (data: any[], filter: 'month' | 'week') => {
-    const { startOfMonth, endOfMonth } = getCurrentMonthRange();
-    const { startOfWeek, endOfWeek } = getCurrentWeekRange();
-
-    const startDate = filter === 'month' ? startOfMonth : startOfWeek;
-    const endDate = filter === 'month' ? endOfMonth : endOfWeek;
-
-    return data.filter(item => {
-        const [day, month] = item.date.split('/').map(Number);
-        const date = new Date(`${new Date().getFullYear()}-${month}-${day}`);
-        return date >= startDate && date <= endDate;
-    });
-};
-
-
 const PointsRecords: React.FC = () => {
     const navigation = useNavigation<PointsRecordsNavigationProp>();
     const [expanded, setExpanded] = useState<number | null>(null); // Para gerenciar a expansão da linha
-    const [display, setDisplay] = useState<number | null>(null);
-    const [filter, setFilter] = useState<'month' | 'week'>('month'); // Estado para o filtro
-    const [filteredData, setFilteredData] = useState<any[]>(data); // Dados filtrados
+    const [loading, setLoading] = useState<boolean>(false);
+    const [data, setData] = useState<PointRecord[]>([]); // Estado para armazenar os dados vindos do backend
+    const [error, setError] = useState<string | null>(null); // Estado para capturar erros
 
-    // Dados simulados de exemplo
-    const data = [
-        {
-            id: 1,
-            date: '09/12',
-            times: ['08:00', '12:00', '13:00', '17:00'],
-            details: 'Detalhes extras sobre o ponto registrado.',
-        },
-        {
-            id: 2,
-            date: '08/12',
-            times: ['09:00', '12:30', '13:30', '18:00'],
-            details: 'Informações detalhadas sobre o ponto.',
-        },
-        {
-            id: 3,
-            date: '07/12',
-            times: ['08:15', '12:15', '13:15', '17:15'],
-            details: 'Dados sobre o ponto registrado no dia 07/12.',
-        },
-        {
-            id: 4,
-            date: '06/12',
-            times: ['08:10', '12:05', '13:05', '17:20'],
-            details: 'Registro de ponto com informações adicionais.',
-        },
-        {
-            id: 5,
-            date: '05/12',
-            times: ['08:00', '12:00', '13:00', '17:00'],
-            details: 'Ponto normal do dia 05/12.',
-        },
-        {
-            id: 6,
-            date: '04/12',
-            times: ['08:05', '12:10', '13:10', '17:05'],
-            details: 'Informações detalhadas sobre o ponto registrado.',
-        },
-        {
-            id: 7,
-            date: '03/12',
-            times: ['09:00', '12:00', '13:00', '18:00'],
-            details: 'Dados extras do ponto de 03/12.',
-        },
-        {
-            id: 8,
-            date: '02/12',
-            times: ['08:30', '12:30', '13:30', '17:30'],
-            details: 'Registro do ponto de 02/12.',
-        },
-        {
-            id: 9,
-            date: '01/12',
-            times: ['08:45', '12:45', '13:45', '17:45'],
-            details: 'Informações sobre o ponto de 01/12.',
-        },
-        {
-            id: 10,
-            date: '30/11',
-            times: ['08:00', '12:00', '13:00', '17:00'],
-            details: 'Detalhes do ponto de 30/11.',
-        },
-        {
-            id: 11,
-            date: '29/11',
-            times: ['08:00', '12:00', '13:00', '17:00'],
-            details: 'Informações do registro de ponto de 29/11.',
-        },
-        {
-            id: 12,
-            date: '28/11',
-            times: ['08:10', '12:10', '13:10', '17:10'],
-            details: 'Ponto registrado em 28/11.',
-        },
-        {
-            id: 13,
-            date: '27/11',
-            times: ['08:05', '12:05', '13:05', '17:05'],
-            details: 'Dados do ponto registrado no dia 27/11.',
-        },
-        {
-            id: 14,
-            date: '26/11',
-            times: ['08:00', '12:00', '13:00', '17:00'],
-            details: 'Informações detalhadas sobre o ponto de 26/11.',
-        },
-    ];
-    
-    // Função para obter o início e o fim do mês atual
-const getCurrentMonthRange = () => {
-    const today = new Date();
-    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-    return { startOfMonth, endOfMonth };
-};
-
-// Função para obter o início e o fim da semana atual
-const getCurrentWeekRange = () => {
-    const today = new Date();
-    const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 1)); // Segunda-feira
-    const endOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 7)); // Domingo
-    return { startOfWeek, endOfWeek };
-};
-
-// Função para filtrar dados com base no intervalo de datas
-const filterData = (data: any[], filter: 'month' | 'week') => {
-    const { startOfMonth, endOfMonth } = getCurrentMonthRange();
-    const { startOfWeek, endOfWeek } = getCurrentWeekRange();
-
-    const startDate = filter === 'month' ? startOfMonth : startOfWeek;
-    const endDate = filter === 'month' ? endOfMonth : endOfWeek;
-
-    return data.filter(item => {
-        const [day, month] = item.date.split('/').map(Number);
-        const date = new Date(`${new Date().getFullYear()}-${month}-${day}`);
-        return date >= startDate && date <= endDate;
-        });
+    const getUserId = async () => {
+        try {
+            const userId = await AsyncStorage.getItem('userId');
+            return userId;
+        } catch (error) {
+            console.error('Erro ao obter o item do AsyncStorage', error);
+        }
     };
 
-    // Função para lidar com o clique no TouchableOpacity
+    useEffect(() => {
+        const getRecords = async () => {
+            try {
+                const userId = await getUserId(); // Resolva a Promise para obter o valor de userId
+
+                if (userId) {
+                    setLoading(true); // Inicie o carregamento
+                    const response = await axios.get<PointRecord[]>(`${backendUrl}/points/${userId}`);
+                    const dados = response.data;
+
+                    if (Array.isArray(dados)) {
+                        setData(dados); // Atualize o estado com os dados da resposta
+                    } else {
+                        console.error('Os dados recebidos não são um array.');
+                    }
+                } else {
+                    console.log('UserId não encontrado');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar perfil:', error);
+            } finally {
+                setLoading(false); // Finalize o carregamento
+            }
+        };
+
+        getRecords();
+    }, []);
+
     const toggleExpand = (id: number) => {
         setExpanded(prevId => (prevId === id ? null : id)); // Expande ou recolhe a linha
-        setDisplay(prevId => (prevId == id ? null: id));
     };
 
-    const renderItem = ({ item }: { item: any }) => {
-        const dayOfWeek = getDayOfWeek(item.date);
-        const totalWorked = calculateTotalWorked(item.times);
-
+    const renderItem = ({ item }: { item: PointRecord }) => {
+        const dayOfWeek = getDayOfWeek(item.date); // Função auxiliar para calcular o dia da semana
+        const dataFormatada = formatDate(item.date);
+        const times = [item.hour1, item.hour2, item.hour3, item.hour4];
+        
+        // Formate os horários
+        const formattedTimes = times.map(time => formatTime(time));
+    
+        // Calcule o total de horas trabalhadas
+        const totalWorked = calculateTotalWorked(times);
+    
         return (
             <TouchableOpacity
                 style={PointsRecordsStyles.row}
                 onPress={() => toggleExpand(item.id)}
             >
                 <View style={PointsRecordsStyles.rowContent}>
-                    <Text style={PointsRecordsStyles.date}>{item.date}</Text>
+                    <Text style={PointsRecordsStyles.date}>{dataFormatada}</Text>
                     <View style={PointsRecordsStyles.timesContainer}>
-                        {expanded !== item.id && item.times.map((time: string, index: number) => (
+                        {expanded !== item.id && formattedTimes.map((time: string, index: number) => (
                             <View key={index} style={PointsRecordsStyles.timeBlockTop}>
                                 <Text style={PointsRecordsStyles.time}>{time}</Text>
                             </View>
@@ -220,14 +167,10 @@ const filterData = (data: any[], filter: 'month' | 'week') => {
                         {expanded === item.id ? '▲' : '▼'}
                     </Text>
                 </View>
-
                 {expanded === item.id && (
                     <View style={PointsRecordsStyles.detailsContainer}>
-                        {/* Exibir dia da semana */}
                         <Text style={PointsRecordsStyles.dayOfWeek}>{dayOfWeek}</Text>
-                        
-                        {/* Exibir horários em linhas separadas */}
-                        {item.times.map((time: string, index: number) => (
+                        {formattedTimes.map((time: string, index: number) => (
                             <TouchableOpacity key={index} style={PointsRecordsStyles.timeBlock}>
                                 <View style={PointsRecordsStyles.detailStand}></View>
                                 <View>
@@ -241,19 +184,15 @@ const filterData = (data: any[], filter: 'month' | 'week') => {
                                 </View>
                             </TouchableOpacity>
                         ))}
-
-                        {/* Exibir Observações */}
-                        <Text style={PointsRecordsStyles.borderObservation}></Text>
                         <Text style={PointsRecordsStyles.observationsTitle}>Observações</Text>
-                        <Text style={PointsRecordsStyles.details}>{item.details}</Text>
-
-                        {/* Exibir Total Trabalhado */}
+                        <Text style={PointsRecordsStyles.details}>{item.obs || 'Sem observações'}</Text>
                         <Text style={PointsRecordsStyles.totalWorked}>Total Trabalhado: {totalWorked}</Text>
                     </View>
                 )}
             </TouchableOpacity>
         );
     };
+    
 
     return (
         <View style={PointsRecordsStyles.container}>
@@ -267,13 +206,17 @@ const filterData = (data: any[], filter: 'month' | 'week') => {
                 onRightIconPress={() => navigation.navigate('Profile')}
                 isStoreScreen={false}
             />
-            <ScrollView contentContainerStyle={PointsRecordsStyles.scrollContainer}>
-                <FlatList
-                    data={data}
-                    keyExtractor={item => item.id.toString()}
-                    renderItem={renderItem}
-                />
-            </ScrollView>
+            <View style={PointsRecordsStyles.scrollContainer}>
+                {loading ? (
+                    <ActivityIndicator size="large" color="#509e2f" />
+                ) : (
+                    <FlatList
+                        data={data}
+                        keyExtractor={item => item.id.toString()}
+                        renderItem={renderItem}
+                    />
+                )}
+            </View>
         </View>
     );
 };
