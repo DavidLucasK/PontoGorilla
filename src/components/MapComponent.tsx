@@ -3,7 +3,11 @@ import { View, ActivityIndicator, Text, Alert } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 
-const MapComponent = () => {
+type MapComponentProps = {
+    onLocationChange: (location: string) => void;
+};
+
+const MapComponent: React.FC<MapComponentProps> = ({ onLocationChange }) => {
     const [latitude, setLatitude] = useState<number | null>(null);
     const [longitude, setLongitude] = useState<number | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
@@ -23,8 +27,21 @@ const MapComponent = () => {
                 const location = await Location.getCurrentPositionAsync({
                     accuracy: Location.Accuracy.High,
                 });
-                setLatitude(location.coords.latitude);
-                setLongitude(location.coords.longitude);
+
+                // Adicione logs aqui
+                console.log('Localização obtida:', location);
+
+                const lat = location.coords.latitude;
+                const lon = location.coords.longitude;
+
+                setLatitude(lat);
+                setLongitude(lon);
+
+                // Chama a função de callback passando a string formatada
+                const locationString = `Latitude: ${lat}, Longitude: ${lon}`;
+                console.log(locationString);
+                onLocationChange(locationString);
+
             } catch (error) {
                 console.error('Error getting location:', error);
                 Alert.alert('Erro', 'Não foi possível localizar.');
@@ -37,7 +54,11 @@ const MapComponent = () => {
     }, []);
 
     if (loading) {
-        return <View style={{ width: '100%', height: 410, backgroundColor: '#606c77', borderRadius: 20 }} ><ActivityIndicator size="large" color="#509e2f" style={{marginTop: 165}} /></View>;
+        return (
+            <View style={{ width: '100%', height: 410, backgroundColor: '#606c77', borderRadius: 20 }}>
+                <ActivityIndicator size="large" color="#509e2f" style={{ marginTop: 165 }} />
+            </View>
+        );
     }
 
     if (latitude === null || longitude === null) {
@@ -45,9 +66,9 @@ const MapComponent = () => {
     }
 
     return (
-        <View style={{ width: '100%', height: 410, borderWidth: 5, borderColor: '#343a40', borderRadius: 20, overflow: 'hidden', zIndex: 99, }} >
+        <View style={{ width: '100%', height: 410, borderWidth: 5, borderColor: '#343a40', borderRadius: 20, overflow: 'hidden', zIndex: 99 }}>
             <MapView
-                style={{ width: '100%', height: 400}}
+                style={{ width: '100%', height: 400 }}
                 region={{
                     latitude: latitude,
                     longitude: longitude,

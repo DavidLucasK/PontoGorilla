@@ -30,6 +30,9 @@ const Home: React.FC = () => {
     const [progress, setProgress] = useState(0); // Progresso da barra em % (0 a 100)
     const [buttonText, setButtonText] = useState('Registrar Ponto'); // Texto do botão
 
+    //Geolocalização
+    const [location, setLocation] = useState<string>('');
+
     const getUserId = async () => {
         try {
             const userId = await AsyncStorage.getItem('userId');
@@ -62,7 +65,8 @@ const Home: React.FC = () => {
                 hour2: buttonText === 'Saída Almoço' ? currentTime : null,
                 hour3: buttonText === 'Volta do Almoço' ? currentTime : null,
                 hour4: buttonText === 'Saída Trabalho' ? currentTime : null,
-                obs: ''  // Adicione observações se necessário
+                obs: '',  // Adicione observações se necessário
+                geoloc: location,
             };
 
             console.log(pointData);
@@ -238,6 +242,7 @@ const Home: React.FC = () => {
     };
 
     const openRegisterConfirmationModal = () => {
+        console.log(location)
         setModalRegisterConfirmationVisible(true);
     };
 
@@ -309,7 +314,7 @@ const Home: React.FC = () => {
                     <View style={HomeStyles.modalContainer}>
                         <View style={HomeStyles.modalConfirmationContent}>
                             <Text style={HomeStyles.titleConfirmRegister}>Você está aqui?</Text>
-                            <MapComponent />
+                            <MapComponent onLocationChange={(loc) => setLocation(loc)}/>
                             <Text style={HomeStyles.modalTitleTime}>{currentTime}</Text>
                             <View style={HomeStyles.modalButtons}>
                                 <TouchableOpacity style={HomeStyles.buttonCancel} onPress={closeRegisterConfirmationModal}>

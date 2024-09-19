@@ -36,6 +36,9 @@ const Header: React.FC<HeaderProps> = ({ homeIcon, leftIcon, middleIcon, rightIc
     const [progress, setProgress] = useState(0); // Progresso da barra em % (0 a 100)
     const [buttonText, setButtonText] = useState('Registrar Ponto'); // Texto do botão
 
+    //Geolocalização
+    const [location, setLocation] = useState<string>('');
+
     const handleLogoPress = () => {
         navigation.reset({
             index: 0,
@@ -110,7 +113,8 @@ const Header: React.FC<HeaderProps> = ({ homeIcon, leftIcon, middleIcon, rightIc
                 hour2: buttonText === 'Saída Almoço' ? currentTime : null,
                 hour3: buttonText === 'Volta do Almoço' ? currentTime : null,
                 hour4: buttonText === 'Saída Trabalho' ? currentTime : null,
-                obs: ''  // Adicione observações se necessário
+                obs: '',  // Adicione observações se necessário
+                geoloc: ''
             };
 
             console.log(pointData);
@@ -202,7 +206,7 @@ const Header: React.FC<HeaderProps> = ({ homeIcon, leftIcon, middleIcon, rightIc
             <View style={HeaderStyles.modalContainer}>
                 <View style={HeaderStyles.modalConfirmationContent}>
                     <Text style={HeaderStyles.titleConfirmRegister}>Você está aqui?</Text>
-                    <MapComponent />
+                    <MapComponent onLocationChange={(loc) => setLocation(loc)}/>
                     <Text style={HeaderStyles.modalTitleTime}>{currentTime}</Text>
                     <View style={HeaderStyles.modalButtons}>
                         <TouchableOpacity style={HeaderStyles.buttonCancel} onPress={closeRegisterConfirmationModal}>
