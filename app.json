@@ -9,7 +9,7 @@
     "splash": {
       "image": "./assets/logo_gorilla_white.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "transparent"
     },
     "ios": {
       "supportsTablet": true
@@ -17,7 +17,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/logo_gorilla_white.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "transparent"
       },
       "package": "com.davidlucask.PontoGorilla"
     },
