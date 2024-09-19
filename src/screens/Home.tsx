@@ -242,7 +242,6 @@ const Home: React.FC = () => {
     };
 
     const openRegisterConfirmationModal = () => {
-        console.log(location)
         setModalRegisterConfirmationVisible(true);
     };
 

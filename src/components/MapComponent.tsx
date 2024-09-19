@@ -28,9 +28,6 @@ const MapComponent: React.FC<MapComponentProps> = ({ onLocationChange }) => {
                     accuracy: Location.Accuracy.High,
                 });
 
-                // Adicione logs aqui
-                console.log('Localização obtida:', location);
-
                 const lat = location.coords.latitude;
                 const lon = location.coords.longitude;
 
@@ -39,7 +36,6 @@ const MapComponent: React.FC<MapComponentProps> = ({ onLocationChange }) => {
 
                 // Chama a função de callback passando a string formatada
                 const locationString = `Latitude: ${lat}, Longitude: ${lon}`;
-                console.log(locationString);
                 onLocationChange(locationString);
 
             } catch (error) {

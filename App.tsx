@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { StatusBar, View, Text } from 'react-native';
+import { StatusBar, View, Text, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Importando AsyncStorage
 import { useFonts, Poppins_400Regular, Poppins_500Medium, Poppins_700Bold, Poppins_600SemiBold } from '@expo-google-fonts/poppins';
 
@@ -48,7 +48,20 @@ const App: React.FC = () => {
     }, []);
 
     if (!fontsLoaded || isLoading) {
-        return <View><Text>Carregando...</Text></View>; // Tela de carregamento enquanto carrega fontes ou checa o login
+        return <View style={{flex: 1, backgroundColor: '#343a40', justifyContent: 'center', alignItems: 'center'}}>
+        <Image 
+            style={{width: 100, height: 100, resizeMode: 'contain'}} 
+            source={require('./assets/logo_gorilla_white.png')} 
+        />
+        <View style={{position: 'absolute', bottom: 20, flexDirection: 'row', alignItems: 'center'}}>
+            <Text style={{color: '#FFF', marginRight: 2}}>Powered by</Text>
+            <Image 
+                style={{width: 40, height: 40, resizeMode: 'contain'}} 
+                source={require('./assets/Logo.png')} 
+            />
+        </View>
+    </View>
+    ; // Tela de carregamento enquanto carrega fontes ou checa o login
     }
 
     // Renderizar o app quando as fontes forem carregadas
