@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ActivityIndicator } from 'react-native';
+import { View, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
 import SingleRecordStyles from '../styles/SingleRecordStyles';
 import axios from 'axios';
 import { RootStackParamList, SingleRecordNavigationProp } from '../../navigation';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import Header from '../components/Header';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 
 // Definição da interface para os dados do registro
 interface PointRecord {
