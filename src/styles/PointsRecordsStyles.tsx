@@ -59,10 +59,15 @@ const PointsRecordsStyles = StyleSheet.create({
         backgroundColor: '#509e2f',
         marginRight: 10,
     },
+    loader: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
     arrow: {
         fontSize: 28,
         color: '#222',
-        marginTop: -5,
+        marginLeft: 1,
     },
     detailsContainer: {
         marginTop: 10,

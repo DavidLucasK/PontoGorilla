@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Alert, Image, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Alert, Image, ActivityIndicator, Modal } from 'react-native';
 import HomeStyles from '../styles/HomeStyles'; // Importando os estilos do Home
 import { useNavigation, useRoute, useFocusEffect, RouteProp } from '@react-navigation/native'; // Importando useNavigation
 import { HomeNavigationProp, RootStackParamList } from '../../navigation'; // Importando o tipo de navegação
 import Header from '../components/Header';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import Svg, { Circle } from 'react-native-svg'; // Importando react-native-svg
+import MapComponent from '../components/MapComponent';
 
 const backendUrl = 'https://pontogorillaback.vercel.app/api/auth';
 
@@ -20,6 +20,10 @@ const Home: React.FC = () => {
     const [name, setName] = useState<string>('');
     const [error, setError] = useState('');
 
+    const [modalFullVisible, setModalFullVisible] = useState<boolean>(false);
+    const [modalRegisterVisible, setModalRegisterVisible] = useState<boolean>(false);
+    const [modalRegisterConfirmationVisible, setModalRegisterConfirmationVisible] = useState<boolean>(false);
+
     // Novos estados para o contador, barra de progresso e status do botão
     const [isWorking, setIsWorking] = useState(false); // Estado para verificar se o usuário está trabalhando
     const [workTime, setWorkTime] = useState(0); // Contador em minutos
@@ -32,6 +36,76 @@ const Home: React.FC = () => {
             return userId;
         } catch (error) {
             console.error('Erro ao obter o item do AsyncStorage', error);
+        }
+    };
+
+    // Função para registrar ponto
+    const handleRegisterPoint = async () => {
+        const userId = await getUserId(); // Obtém o ID do usuário
+
+        if (!userId) {
+            Alert.alert('Erro', 'ID do usuário não encontrado.');
+            return;
+        }
+
+        const hour = new Date();
+        const data = new Date();
+        data.setHours(data.getHours() - 3); // Subtrai 3 horas
+        const formattedDate = data.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+        const currentTime = hour.toISOString().split('T')[1].split('.')[0]; // Formato HH:MM:SS
+
+        try {
+            const pointData = {
+                userId: userId,
+                date: formattedDate,
+                hour1: buttonText === 'Registrar Ponto' ? currentTime : null,
+                hour2: buttonText === 'Saída Almoço' ? currentTime : null,
+                hour3: buttonText === 'Volta do Almoço' ? currentTime : null,
+                hour4: buttonText === 'Saída Trabalho' ? currentTime : null,
+                obs: ''  // Adicione observações se necessário
+            };
+
+            console.log(pointData);
+
+            // Realiza o POST para o endpoint
+            const response = await axios.post(`${backendUrl}/register-point`, pointData);
+            console.log("registrando");
+
+            // Verifica o status code da resposta
+            if (response.status === 205) {
+                setModalFullVisible(true);
+                setModalRegisterVisible(false);
+                setModalRegisterConfirmationVisible(false)
+                console.log('todos os horarios preenchidos hoje')
+                return;
+            }
+            else if (response.status === 200 || response.status === 201) {
+                setIsWorking((prev) => !prev);
+                setWorkTime(0); // Reseta o contador de tempo de trabalho
+                setProgress(0); // Reseta a barra de progresso
+                setModalRegisterVisible(true);
+                setModalRegisterConfirmationVisible(false)
+                console.log('registrado com sucesso')
+
+                // Alterna o texto do botão
+                setButtonText((prev) => {
+                    switch (prev) {
+                        case 'Registrar Ponto':
+                            return 'Saída Almoço';
+                        case 'Saída Almoço':
+                            return 'Volta do Almoço';
+                        case 'Volta do Almoço':
+                            return 'Saída Trabalho';
+                        default:
+                            return 'Registrar Ponto';
+                    }
+                });
+            } else {
+                Alert.alert('Erro', 'Não foi possível registrar o ponto.');
+            }
+        } catch (error) {
+            console.error('Erro ao registrar ponto:', error);
+            Alert.alert('Erro', 'Houve um problema ao registrar o ponto.');
         }
     };
 
@@ -58,17 +132,30 @@ const Home: React.FC = () => {
 
     const loadProfileData = async () => {
         setLoading(true);
-
+    
         try {
-            const userId = await getUserId();
-            if (userId) {
-                const response = await axios.get(`${backendUrl}/get-profile/${userId}`);
-                const profileData = response.data;
-
-                const firstName = extractFirstName(profileData.name || '');
-                setName(firstName);
+            // Primeiro, tente obter o nome do AsyncStorage
+            const storedName = await AsyncStorage.getItem('userName');
+            if (storedName) {
+                // Se o nome já estiver armazenado, use-o
+                const formattedName = storedName.split(' ')[0];
+                setName(formattedName);
             } else {
-                setError('User ID is null or undefined');
+                // Caso contrário, faça a requisição para obter o nome
+                const userId = await getUserId();
+                if (userId) {
+                    const response = await axios.get(`${backendUrl}/get-profile/${userId}`);
+                    const profileData = response.data;
+    
+                    const firstName = extractFirstName(profileData.name || '');
+                    const formattedName = firstName.split(' ')[0];
+                    setName(formattedName);
+    
+                    // Armazene o nome no AsyncStorage para uso futuro
+                    await AsyncStorage.setItem('userName', formattedName);
+                } else {
+                    setError('User ID is null or undefined');
+                }
             }
         } catch (error) {
             console.error('Erro ao carregar perfil:', error);
@@ -77,6 +164,7 @@ const Home: React.FC = () => {
             setLoading(false); // Parar o carregamento após a tentativa
         }
     };
+    
 
     const formatDateToFullString = (): string => {
         const now = new Date();
@@ -105,7 +193,7 @@ const Home: React.FC = () => {
         const timer = setInterval(() => {
             const now = new Date();
             setCurrentTime(now.toLocaleTimeString());
-        }, 1000);
+        }, 500);
 
         return () => clearInterval(timer);
     }, []);
@@ -125,30 +213,36 @@ const Home: React.FC = () => {
         };
     }, [isWorking]);
 
-    const handleRegisterPoint = () => {
-        setIsWorking((prev) => !prev);
-        setWorkTime(0); // Reseta o contador de tempo de trabalho
-        setProgress(0); // Reseta a barra de progresso
-
-        // Alterna o texto do botão
-        setButtonText((prev) => {
-            switch (prev) {
-                case 'Registrar Ponto':
-                    return 'Saída Almoço';
-                case 'Saída Almoço':
-                    return 'Volta do Almoço';
-                case 'Volta do Almoço':
-                    return 'Saída Trabalho';
-                default:
-                    return 'Registrar Ponto';
-            }
-        });
-    };
-
     const formatTime = (minutes: number): string => {
         const hrs = Math.floor(minutes / 60);
         const mins = minutes % 60;
         return `${hrs}h ${mins}min`;
+    };
+
+    // Função para abrir o modal de logout
+    const openFullModal = () => {
+        setModalFullVisible(true);
+    };
+
+    // Função para fechar o modal
+    const closeFullModal = () => {
+        setModalFullVisible(false);
+    };
+
+    const openRegisterModal = () => {
+        setModalRegisterVisible(true);
+    };
+
+    const closeRegisterModal = () => {
+        setModalRegisterVisible(false);
+    };
+
+    const openRegisterConfirmationModal = () => {
+        setModalRegisterConfirmationVisible(true);
+    };
+
+    const closeRegisterConfirmationModal = () => {
+        setModalRegisterConfirmationVisible(false);
     };
 
     return (
@@ -158,7 +252,7 @@ const Home: React.FC = () => {
                 leftIcon={require('../../assets/calendar.png')}
                 onLeftIconPress={() => navigation.navigate('PointsRecords')}
                 middleIcon={require('../../assets/clock2.png')}
-                onMiddleIconPress={() => navigation.navigate('Login')}
+                onMiddleIconPress={openRegisterConfirmationModal}
                 rightIcon={require('../../assets/profile-user.png')}
                 onRightIconPress={() => navigation.navigate('Profile')}
                 isStoreScreen={false}
@@ -185,7 +279,7 @@ const Home: React.FC = () => {
                                 </>
                             )}
                         </View>
-                        <TouchableOpacity style={HomeStyles.button} onPress={handleRegisterPoint}>
+                        <TouchableOpacity style={HomeStyles.button} onPress={openRegisterConfirmationModal}>
                             <Text style={HomeStyles.buttonText}>{buttonText}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => navigation.navigate('PointsRecords')}>
@@ -193,6 +287,55 @@ const Home: React.FC = () => {
                         </TouchableOpacity>
                     </ScrollView>
                 </>
+            )}
+
+            {/* Modal de registro de ponto completo */}
+            {modalFullVisible && (
+                <Modal transparent={true} visible={modalFullVisible} animationType="fade">
+                <View style={HomeStyles.modalContainer}>
+                    <View style={HomeStyles.modalContent}>
+                    <Text style={HomeStyles.modalTitle}>Todos os pontos do dia já foram preenchidos!</Text>
+                    <TouchableOpacity style={HomeStyles.buttonOk} onPress={closeFullModal}>
+                        <Text style={HomeStyles.buttonOkText}>Ok</Text>
+                    </TouchableOpacity>
+                    </View>
+                </View>
+                </Modal>
+            )}
+
+            {/* Modal de confirmação de registro de ponto */}
+            {modalRegisterConfirmationVisible && (
+                <Modal transparent={true} visible={modalRegisterConfirmationVisible} animationType="slide">
+                    <View style={HomeStyles.modalContainer}>
+                        <View style={HomeStyles.modalConfirmationContent}>
+                            <Text style={HomeStyles.titleConfirmRegister}>Você está aqui?</Text>
+                            <MapComponent />
+                            <Text style={HomeStyles.modalTitleTime}>{currentTime}</Text>
+                            <View style={HomeStyles.modalButtons}>
+                                <TouchableOpacity style={HomeStyles.buttonCancel} onPress={closeRegisterConfirmationModal}>
+                                    <Text style={HomeStyles.buttonOkText}>Cancelar</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={HomeStyles.buttonOk} onPress={handleRegisterPoint}>
+                                    <Text style={HomeStyles.buttonOkText}>Registrar Ponto</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
+            )}
+
+            {/* Modal de registro de ponto com sucesso */}
+            {modalRegisterVisible && (
+                <Modal transparent={true} visible={modalRegisterVisible} animationType="fade">
+                <View style={HomeStyles.modalContainer}>
+                    <View style={HomeStyles.modalContent}>
+                    <Text style={HomeStyles.modalTitle}>Ponto registrado com sucesso!</Text>
+                    <TouchableOpacity style={HomeStyles.buttonOk} onPress={closeRegisterModal}>
+                        <Text style={HomeStyles.buttonOkText}>Ok</Text>
+                    </TouchableOpacity>
+                    </View>
+                </View>
+                </Modal>
             )}
         </View>
     );

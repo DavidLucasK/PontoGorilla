@@ -23,6 +23,9 @@ const backendUrl = 'https://pontogorillaback.vercel.app/api/auth';
 
 // Função auxiliar para calcular o dia da semana
 const formatDate = (date: string) => {
+    if (!date) {
+        return '';
+    }
     const parts = date.split('-');
     if (parts.length !== 3) {
         throw new Error('Data no formato incorreto. Esperado YYYY-MM-DD.');
@@ -42,9 +45,12 @@ const formatDate = (date: string) => {
 
 // Formata os horários
 const formatTime = (time: string) => {
+    if (!time) {
+        return '';
+    }
     const [hours, minutes] = time.split(':');
-    const formattedHours = hours.padStart(2, '0');
-    const formattedMinutes = minutes.slice(0, 2).padStart(2, '0');
+    const formattedHours = hours ? hours.padStart(2, '0') : '00';
+    const formattedMinutes = minutes ? minutes.slice(0, 2).padStart(2, '0') : '00';
     return `${formattedHours}:${formattedMinutes}`;
 };
 
@@ -58,6 +64,10 @@ const getDayOfWeek = (date: string) => {
 
 // Função auxiliar para calcular o total de horas trabalhadas
 const calculateTotalWorked = (times: string[]) => {
+    if (times.some(time => !time)) {
+        return '00:00'; // Valor default se qualquer hora estiver faltando
+    }
+
     const [start, lunchStart, lunchEnd, end] = times.map(time => {
         const [hours, minutes] = time.split(':').map(Number);
         return hours * 60 + minutes;
@@ -75,6 +85,7 @@ const calculateTotalWorked = (times: string[]) => {
 
     return `${formattedHours}:${formattedMinutes}`;
 };
+
 
 const PointsRecords: React.FC = () => {
     const navigation = useNavigation<PointsRecordsNavigationProp>();
@@ -191,8 +202,6 @@ const PointsRecords: React.FC = () => {
                 homeIcon={require('../../assets/nome_gorilla_white.png')}
                 leftIcon={require('../../assets/calendar.png')}
                 onLeftIconPress={() => navigation.navigate('PointsRecords')}
-                middleIcon={require('../../assets/clock2.png')}
-                onMiddleIconPress={() => navigation.navigate('Login')}
                 rightIcon={require('../../assets/profile-user.png')}
                 onRightIconPress={() => navigation.navigate('Profile')}
                 isStoreScreen={false}

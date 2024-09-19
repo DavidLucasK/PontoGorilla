@@ -30,7 +30,7 @@ const SingleRecordStyles = StyleSheet.create({
     height: 480,
     borderRadius: 10,
     backgroundColor: '#509e2f',
-    marginRight: 10,
+    marginRight: 35,
 },
 bottom: {
   display: 'flex',
@@ -43,7 +43,7 @@ bottom: {
     fontFamily: 'Poppins_600SemiBold',
   },
   detailContainer: {
-    width: '120%',
+    width: '100%',
     backgroundColor: 'rgb(249, 255, 193)',
     borderRadius: 10,
     padding: 20,

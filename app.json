@@ -18,13 +18,19 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/logo_gorilla_white.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.davidlucask.PontoGorilla"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "7f84aaad-6a3b-484e-8582-c275746d2810"
+      }
+    }
   }
 }

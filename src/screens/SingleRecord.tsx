@@ -101,10 +101,6 @@ const SingleRecord: React.FC = () => {
     loadFromAsyncStorage();
   }, []);
 
-  if (loading) {
-    return <ActivityIndicator size="large" color="#509e2f" style={SingleRecordStyles.loader} />;
-  }
-
   if (error) {
     return (
       <View style={SingleRecordStyles.container}>
@@ -116,8 +112,16 @@ const SingleRecord: React.FC = () => {
   if (!record) {
     return (
       <View style={SingleRecordStyles.container}>
-        <Text>Registro não encontrado.</Text>
-      </View>
+      <Header
+        homeIcon={require('../../assets/nome_gorilla_white.png')}
+        leftIcon={require('../../assets/calendar.png')}
+        onLeftIconPress={() => navigation.navigate('PointsRecords')}
+        middleIcon={require('../../assets/clock2.png')}
+        rightIcon={require('../../assets/profile-user.png')}
+        onRightIconPress={() => navigation.navigate('Profile')}
+      />
+      <ActivityIndicator size="large" color="#509e2f" style={SingleRecordStyles.loader} /> 
+    </View>
     );
   }
 
@@ -134,10 +138,12 @@ const SingleRecord: React.FC = () => {
         leftIcon={require('../../assets/calendar.png')}
         onLeftIconPress={() => navigation.navigate('PointsRecords')}
         middleIcon={require('../../assets/clock2.png')}
-        onMiddleIconPress={() => navigation.navigate('Login')}
         rightIcon={require('../../assets/profile-user.png')}
         onRightIconPress={() => navigation.navigate('Profile')}
       />
+      {loading ? 
+      <ActivityIndicator size="large" color="#509e2f" style={SingleRecordStyles.loader} /> 
+      : 
       <View style={SingleRecordStyles.main}>
         <TouchableOpacity onPress={() => navigation.navigate('PointsRecords')}>
           <Text style={SingleRecordStyles.back}>Voltar</Text>
@@ -181,6 +187,7 @@ const SingleRecord: React.FC = () => {
       </View>
         </View>
       </View>
+      }
     </View>
   );
 };
