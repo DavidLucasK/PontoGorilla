@@ -30,8 +30,27 @@ const Home: React.FC = () => {
     const [progress, setProgress] = useState(0); // Progresso da barra em % (0 a 100)
     const [buttonText, setButtonText] = useState('Registrar Ponto'); // Texto do botão
 
-    //Geolocalização
-    const [location, setLocation] = useState<string>('');
+    const getLocationFromStorage = async () => {
+        try {
+            // Pegar latitude e longitude do AsyncStorage
+            const lat = await AsyncStorage.getItem('latitude');
+            const lon = await AsyncStorage.getItem('longitude');
+    
+            // Verifica se os valores existem no AsyncStorage
+            if (lat !== null && lon !== null) {
+                const latitude = parseFloat(lat);
+                const longitude = parseFloat(lon);
+    
+                return { latitude, longitude };
+            } else {
+                console.log('Nenhuma localização salva.');
+                return null;
+            }
+        } catch (error) {
+            console.error('Erro ao pegar dados do AsyncStorage', error);
+            return null;
+        }
+    };
 
     const getUserId = async () => {
         try {
@@ -57,6 +76,11 @@ const Home: React.FC = () => {
         const formattedDate = data.toISOString().split('T')[0]; // Formato YYYY-MM-DD
         const currentTime = hour.toISOString().split('T')[1].split('.')[0]; // Formato HH:MM:SS
 
+        const location = await getLocationFromStorage();
+
+        const fullLocation = `Latitude: ${location?.latitude}, Longitude:${location?.longitude}`;
+        console.log(fullLocation);
+
         try {
             const pointData = {
                 userId: userId,
@@ -66,7 +90,7 @@ const Home: React.FC = () => {
                 hour3: buttonText === 'Volta do Almoço' ? currentTime : null,
                 hour4: buttonText === 'Saída Trabalho' ? currentTime : null,
                 obs: '',  // Adicione observações se necessário
-                geoloc: location,
+                geoloc: fullLocation,
             };
 
             console.log(pointData);
@@ -241,7 +265,7 @@ const Home: React.FC = () => {
         setModalRegisterVisible(false);
     };
 
-    const openRegisterConfirmationModal = () => {
+    const openRegisterConfirmationModal = async () => {
         setModalRegisterConfirmationVisible(true);
     };
 
@@ -313,7 +337,7 @@ const Home: React.FC = () => {
                     <View style={HomeStyles.modalContainer}>
                         <View style={HomeStyles.modalConfirmationContent}>
                             <Text style={HomeStyles.titleConfirmRegister}>Você está aqui?</Text>
-                            <MapComponent onLocationChange={(loc) => setLocation(loc)}/>
+                            <MapComponent />
                             <Text style={HomeStyles.modalTitleTime}>{currentTime}</Text>
                             <View style={HomeStyles.modalButtons}>
                                 <TouchableOpacity style={HomeStyles.buttonCancel} onPress={closeRegisterConfirmationModal}>

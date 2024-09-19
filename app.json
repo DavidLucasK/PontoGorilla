@@ -5,25 +5,28 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/DlLogo1024.png",
-    "userInterfaceStyle": "dark",
-    "updates": {
-      "fallbackToCacheTimeout": 0
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/transparent.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/DlLogo1080.png",
-        "backgroundColor": "#FFFFFF"
+        "backgroundColor": "#ffffff"
       },
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ],
       "package": "com.davidlucask.PontoGorilla"
     },
     "web": {
-      "favicon": "./assets/DlLogo1080.png"
+      "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-font"

@@ -206,7 +206,7 @@ const Header: React.FC<HeaderProps> = ({ homeIcon, leftIcon, middleIcon, rightIc
             <View style={HeaderStyles.modalContainer}>
                 <View style={HeaderStyles.modalConfirmationContent}>
                     <Text style={HeaderStyles.titleConfirmRegister}>Você está aqui?</Text>
-                    <MapComponent onLocationChange={(loc) => setLocation(loc)}/>
+                    <MapComponent />
                     <Text style={HeaderStyles.modalTitleTime}>{currentTime}</Text>
                     <View style={HeaderStyles.modalButtons}>
                         <TouchableOpacity style={HeaderStyles.buttonCancel} onPress={closeRegisterConfirmationModal}>
