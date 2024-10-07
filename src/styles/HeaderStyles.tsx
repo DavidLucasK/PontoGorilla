@@ -26,6 +26,11 @@ const HeaderStyles = StyleSheet.create({
         height: 32,
     },
     middleicon: {
+        width: 36,
+        height: 36,
+        marginRight: -5,
+    },
+    middle2icon: {
         width: 32,
         height: 32,
     },

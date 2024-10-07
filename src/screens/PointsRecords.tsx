@@ -204,7 +204,7 @@ const PointsRecords: React.FC = () => {
                 onLeftIconPress={() => navigation.navigate('PointsRecords')}
                 rightIcon={require('../../assets/profile-user.png')}
                 onRightIconPress={() => navigation.navigate('Profile')}
-                isStoreScreen={false}
+
             />
             <Text style={PointsRecordsStyles.comprovantes}>Últimos Registros</Text>
             <View style={PointsRecordsStyles.scrollContainer}>

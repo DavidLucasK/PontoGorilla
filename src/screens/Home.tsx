@@ -7,6 +7,7 @@ import Header from '../components/Header';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import MapComponent from '../components/MapComponent';
+import { useAppContext } from '../context/AppContext';
 
 const backendUrl = 'https://pontogorillaback.vercel.app/api/auth';
 
@@ -19,6 +20,10 @@ const Home: React.FC = () => {
     const [currentDate, setCurrentDate] = useState<string>('');
     const [name, setName] = useState<string>('');
     const [error, setError] = useState('');
+
+    const { user } = useAppContext();
+
+    const [role, setRole] = useState<string>('');
 
     const [modalFullVisible, setModalFullVisible] = useState<boolean>(false);
     const [modalRegisterVisible, setModalRegisterVisible] = useState<boolean>(false);
@@ -58,6 +63,19 @@ const Home: React.FC = () => {
             return userId;
         } catch (error) {
             console.error('Erro ao obter o item do AsyncStorage', error);
+        }
+    };
+
+    const getRoleUser = async () => {
+        try {
+            const response = await axios.get(`${backendUrl}/get_role/${user}`);
+
+            if (response.status == 200) {
+                setRole(response.data.role);
+            }
+        }
+        catch {
+            console.log('não foi possivel buscar os dados')
         }
     };
 
@@ -212,6 +230,7 @@ const Home: React.FC = () => {
     useFocusEffect(
         useCallback(() => {
             loadProfileData();
+            getRoleUser();
             updateWelcomeMessage();
         }, [route.params?.refresh])
     );
@@ -279,11 +298,12 @@ const Home: React.FC = () => {
                 homeIcon={require('../../assets/nome_gorilla_white.png')}
                 leftIcon={require('../../assets/calendar.png')}
                 onLeftIconPress={() => navigation.navigate('PointsRecords')}
-                middleIcon={require('../../assets/clock2.png')}
-                onMiddleIconPress={openRegisterConfirmationModal}
+                middleIcon={require('../../assets/records.png')}
+                onMiddleIconPress={() => null}
+                middle2Icon={require('../../assets/clock2.png')}
+                onMiddle2IconPress={openRegisterConfirmationModal}
                 rightIcon={require('../../assets/profile-user.png')}
                 onRightIconPress={() => navigation.navigate('Profile')}
-                isStoreScreen={false}
             />
             {loading ? (
                 <ActivityIndicator size="large" color="#509e2f" style={HomeStyles.loadingIcon} />
@@ -295,6 +315,7 @@ const Home: React.FC = () => {
                             <Text style={HomeStyles.dateNow}>{currentDate}</Text>
                         </View>
                         <View>
+                            <Text style={{color: '#FFF'}}>{role}</Text>
                             <Image style={HomeStyles.gorilla} source={require('../../assets/logo_gorilla_white.png')} />
                             {/* Novo bloco para o status de trabalho e contador */}
                             <Text style={HomeStyles.workStatus}>{isWorking ? 'Trabalhando' : 'Não trabalhando'}</Text>

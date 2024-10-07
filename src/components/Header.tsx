@@ -14,15 +14,16 @@ interface HeaderProps {
     homeIcon?: any;
     leftIcon?: any; 
     middleIcon?:any;
+    middle2Icon?:any
     rightIcon?: any;
     onHomeIconPress?: () => void;
     onLeftIconPress?: () => void;
     onMiddleIconPress?: () => void;
+    onMiddle2IconPress?: () => void;
     onRightIconPress?: () => void;
-    isStoreScreen?: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ homeIcon, leftIcon, middleIcon, rightIcon, onLeftIconPress, onMiddleIconPress, onRightIconPress, isStoreScreen }) => {
+const Header: React.FC<HeaderProps> = ({ homeIcon, leftIcon, middleIcon, middle2Icon, rightIcon, onLeftIconPress, onMiddleIconPress, onMiddle2IconPress, onRightIconPress }) => {
     const navigation = useNavigation<HomeNavigationProp>(); // Usando o tipo de navegação
     const [currentTime, setCurrentTime] = useState<string>('');
 
@@ -175,6 +176,11 @@ const Header: React.FC<HeaderProps> = ({ homeIcon, leftIcon, middleIcon, rightIc
                     {middleIcon && (
                         <TouchableOpacity onPress={onMiddleIconPress}>
                             <Image source={middleIcon} style={HeaderStyles.middleicon} />
+                        </TouchableOpacity>
+                    )}
+                    {middle2Icon && (
+                        <TouchableOpacity onPress={onMiddle2IconPress}>
+                            <Image source={middle2Icon} style={HeaderStyles.middle2icon} />
                         </TouchableOpacity>
                     )}
                     {rightIcon && (

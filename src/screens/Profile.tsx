@@ -164,7 +164,6 @@ const Profile: React.FC = () => {
         onLeftIconPress={() => navigation.navigate('PointsRecords')}
         rightIcon={require('../../assets/profile-user.png')}
         onRightIconPress={() => navigation.navigate('Profile')}
-        isStoreScreen={false}
       />
     {loading ? 
     <ActivityIndicator size="large" color="#509e2f" style={ProfileStyles.loadingIcon} />
